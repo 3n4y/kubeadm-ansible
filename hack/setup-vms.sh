@@ -4,17 +4,17 @@
 # History: 2017/1/16 Kyle.b Release
 
 
-function set_hosts() {
-cat <<EOF > ~/hosts
-127.0.0.1   localhost
-::1         localhost
+# function set_hosts() {
+# cat <<EOF > ~/hosts
+# 127.0.0.1   localhost
+# ::1         localhost
 
-192.16.35.10 k8s-n1
-192.16.35.11 k8s-n2
-192.16.35.12 k8s-m1
+# 192.16.35.10 k8s-n1
+# 192.16.35.11 k8s-n2
+# 192.16.35.12 k8s-m1
 
-EOF
-}
+# EOF
+# }
 
 set -e
 HOST_NAME=$(hostname)
