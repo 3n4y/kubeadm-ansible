@@ -26,6 +26,14 @@ def set_vbox(vb, config)
   end
 end
 
+# Sets up hosts file,  and ssh authorized keys
+def setup_hosts(node)
+  # Set up /etc/hosts
+  node.vm.provision :shell, path: "./hack/setup-vms.sh"
+  # Set up ssh connection
+  node.vm.provision :shell, path: "./hack/setup-ssh.sh"
+end
+
 # Vagrant.configure("2") do |config|
 #   config.vm.provider "virtualbox"
 #   master = 1
@@ -87,13 +95,10 @@ Vagrant.configure("2") do |config|
       node.vm.hostname = "kubemaster-#{$os_image}-#{i}"
       node.vm.network :private_network, ip: IP_NW + "#{MASTER_IP_START + i}"
       node.vm.network "forwarded_port", guest: 22, host: "#{2710 + i}"
-      # provision_kubernetes_node node
-      # setup_kubeadm_master node
-      #  if i == 1
-         # Install (opinionated) configs for vim and tmux on master-1. These used by the author for CKA exam.
-        #  node.vm.provision "file", source: "./ubuntu/tmux.conf", destination: "$HOME/.tmux.conf"
-        #  node.vm.provision "file", source: "./ubuntu/vimrc", destination: "$HOME/.vimrc"
-      # end
+      # node.vm.provision "setup-host", type: "shell", :path => "vagrant/setup-hosts.sh"
+      # node.vm.provision "setup-host", type: "shell", :path => "hack/setup-ssh.sh"
+      # Install of dependency packages using script and ssh
+      setup_hosts node
     end
   end
 
@@ -109,8 +114,8 @@ Vagrant.configure("2") do |config|
       node.vm.hostname = "kubeworker-#{$os_image}-#{i}"
       node.vm.network :private_network, ip: IP_NW + "#{NODE_IP_START + i}"
       node.vm.network "forwarded_port", guest: 22, host: "#{2720 + i}"
-      # provision_kubernetes_node node
-      # setup_kubeadm_node node
+      # Install of dependency packages using script and ssh
+      setup_hosts node
     end
   end
 
@@ -125,7 +130,7 @@ Vagrant.configure("2") do |config|
       node.vm.hostname = "server-#{$os_image}-#{i}"
       node.vm.network :private_network, ip: IP_NW + "#{SERVER_IP_START + i}"
       node.vm.network "forwarded_port", guest: 22, host: "#{2730 + i}"
-      # setup_dns node
+      setup_hosts node
     end
   end
 end

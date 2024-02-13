@@ -16,11 +16,16 @@
 # EOF
 # }
 
+function set_hosts() {
+# remove default entry in hosts
+sed -i '/^127\..* '"$HOSTNAME"' .*$/d' -i /etc/hosts
+}
+
 set -e
 HOST_NAME=$(hostname)
 OS_NAME=$(awk -F= '/^NAME/{print $2}' /etc/os-release | grep -o "\w*"| head -n 1)
 
-if [ ${HOST_NAME} == "k8s-m1" ]; then
+if [[ $HOST_NAME == *kubemaster* ]]; then
   case "${OS_NAME}" in
     "CentOS")
       sudo yum install -y epel-release
@@ -36,18 +41,18 @@ if [ ${HOST_NAME} == "k8s-m1" ]; then
   esac
 
   yes "/root/.ssh/id_rsa" | sudo ssh-keygen -t rsa -N ""
-  HOSTS="192.16.35.10 192.16.35.11 192.16.35.12"
-  for host in ${HOSTS}; do
-    sudo sshpass -p "vagrant" ssh -o StrictHostKeyChecking=no vagrant@${host} "sudo mkdir -p /root/.ssh"
-    sudo cat /root/.ssh/id_rsa.pub | \
-         sudo sshpass -p "vagrant" ssh -o StrictHostKeyChecking=no vagrant@${host} "sudo tee /root/.ssh/authorized_keys"
-  done
-
+  # HOSTS="192.16.35.10 192.16.35.11 192.16.35.12"
+  # for host in ${HOSTS}; do
+  #   sudo sshpass -p "vagrant" ssh -o StrictHostKeyChecking=no vagrant@${host} "sudo mkdir -p /root/.ssh"
+  #   sudo cat /root/.ssh/id_rsa.pub | \
+  #        sudo sshpass -p "vagrant" ssh -o StrictHostKeyChecking=no vagrant@${host} "sudo tee /root/.ssh/authorized_keys"
+  # done
+  echo "I got here"
   cd /vagrant
   set_hosts
-  sudo cp ~/hosts /etc/
-  sudo ansible-playbook -e network_interface=eth1 site.yaml
+  # sudo cp ~/hosts /etc/
+  # sudo ansible-playbook -e network_interface=eth1 site.yaml
 else
   set_hosts
-  sudo cp ~/hosts /etc/
+  # sudo cp ~/hosts /etc/
 fi
