@@ -8,10 +8,10 @@ NUM_MASTER_NODE = 1
 NUM_WORKER_NODE = 2
 NUM_BLANK_SERVER_NODE = 0
 
-IP_NW = "192.168.56."
-MASTER_IP_START = 10
-NODE_IP_START = 20
-SERVER_IP_START = 30
+IP_NW = "192.168.57."
+MASTER_IP_START = 60
+NODE_IP_START = 70
+SERVER_IP_START = 80
 
 def set_vbox(vb, config)
   # vb.gui = false
@@ -21,7 +21,7 @@ def set_vbox(vb, config)
   case $os_image
   when :centos7
     config.vm.box = "centos/7"
-  when :ubuntu16
+  when :ubuntu
     config.vm.box = "ubuntu/jammy64"
   end
 end
@@ -94,7 +94,7 @@ Vagrant.configure("2") do |config|
       end
       node.vm.hostname = "kubemaster-#{$os_image}-#{i}"
       node.vm.network :private_network, ip: IP_NW + "#{MASTER_IP_START + i}"
-      node.vm.network "forwarded_port", guest: 22, host: "#{2710 + i}"
+      node.vm.network "forwarded_port", guest: 22, host: "#{2740 + i}"
       # node.vm.provision "setup-host", type: "shell", :path => "vagrant/setup-hosts.sh"
       # node.vm.provision "setup-host", type: "shell", :path => "hack/setup-ssh.sh"
       # Install of dependency packages using script and ssh
@@ -113,7 +113,7 @@ Vagrant.configure("2") do |config|
       end
       node.vm.hostname = "kubeworker-#{$os_image}-#{i}"
       node.vm.network :private_network, ip: IP_NW + "#{NODE_IP_START + i}"
-      node.vm.network "forwarded_port", guest: 22, host: "#{2720 + i}"
+      node.vm.network "forwarded_port", guest: 22, host: "#{2750 + i}"
       # Install of dependency packages using script and ssh
       setup_hosts node
     end
@@ -129,7 +129,7 @@ Vagrant.configure("2") do |config|
       end
       node.vm.hostname = "server-#{$os_image}-#{i}"
       node.vm.network :private_network, ip: IP_NW + "#{SERVER_IP_START + i}"
-      node.vm.network "forwarded_port", guest: 22, host: "#{2730 + i}"
+      node.vm.network "forwarded_port", guest: 22, host: "#{2760 + i}"
       setup_hosts node
     end
   end
