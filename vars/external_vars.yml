@@ -3,14 +3,14 @@
 # Used by the master-cluster playbook
 # Defines the virtual IP to use as the cluster endpoint
 kube_vip: "192.168.57.60"
-
+first_master_node: "192.168.57.61"
 # Pod Subnet to use for Calico CNI
 pod_subnet: "192.168.0.0/16"
 
 # Which user to configure the kube config file for on the first master node
 user: owner
 minor_version: "1.25"
-k8s_version: "1.28.2-0.x86_64"
+k8s_version: "1.21.4"
 calico_version: "3.19"
 calico_cidr: "192.168.0.0/16"
 calico_url: "https://docs.projectcalico.org/archive/v{{ calico_version }}/manifests/calico.yaml"
@@ -24,5 +24,5 @@ CNI_PLUGINS_VERSION: "v1.3.0"
 DOWNLOAD_DIR: "/usr/bin"
 RELEASE: "v1.21.4"
 RELEASE_VERSION: "v0.16.2"
-
+docker_version: "18.06.3.ce-3.el7"
 

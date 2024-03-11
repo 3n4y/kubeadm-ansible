@@ -16,20 +16,27 @@
 #     enabled: true
 #     exclude: kubelet kubeadm kubectl
 
+- name: Install yum util
+  ansible.builtin.yum:
+    name: yum
+    state: present
+
+- name: Set up docker repo
+  ansible.builtin.command: yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
+  changed_when: true
+
+
 - name: Install required packages
   ansible.builtin.yum:
     name:
-      - docker
+      - docker-ce-{{ docker_version }}
       - socat
       - conntrack
-      # - kubeadm-{{k8s_version}}
-      # - kubelet-{{k8s_version}}
-      # - kubectl-{{k8s_version}}
     state: present
 
 # - name: install kubelet
 #   ansible.builtin.command: yum install -y kubelet kubeadm kubectl --disableexcludes=kubernetes
-#   changed_when: true    
+#   changed_when: true
 
 - name: Install kubeadm, kubelet and kubectl without packages
   ansible.builtin.command:
@@ -92,6 +99,32 @@
     state: started
     enabled: true
 
+- name: Configure docker daemon
+  ansible.builtin.copy:
+    content: |
+      {
+        "exec-opts": [
+            "native.cgroupdriver=systemd"
+        ],
+        "log-driver": "json-file",
+        "log-opts": {
+            "max-size": "256m"
+        },
+        "storage-driver": "overlay2",
+        "storage-opts": [
+            "overlay2.override_kernel_check=true"
+        ]
+      }
+    dest: /etc/docker/daemon.json
+    mode: "0644"
+
+- name: Restart daemon and docker service
+  become: true
+  ansible.builtin.systemd:
+    name: docker
+    state: restarted
+    daemon_reload: true
+
 - name: Set up sysctl parameters for Kubernetes
   ansible.posix.sysctl:
     name: "{{ item }}"
@@ -102,27 +135,3 @@
     - net.bridge.bridge-nf-call-iptables
     - net.ipv4.ip_forward
   become: true
-
-# - name: Create kubernetes manifests directory
-#   ansible.builtin.file:
-#     path: /etc/kubernetes/manifests
-#     state: directory
-#     mode: "0644"
-
-# - name: Initialize Kubernetes Cluster with kubeadm
-#   ansible.builtin.command: kubeadm init --kubernetes-version={{ k8s_version }} --pod-network-cidr={{ calico_cidr }}
-#   register: kubeadm_output
-#   changed_when: true
-
-
-# - name: Initialize Kubernetes Cluster with kubeadm
-#   ansible.builtin.command: "{{ item }}"
-#   with_items:
-#     - mkdir -p $HOME/.kube
-#     - cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
-#     - chown {{ ansible_user_id }}:{{ ansible_user_gid }} $HOME/.kube/config
-#   changed_when: true
-
-# - name: Install Calico CNI
-#   ansible.builtin.command: kubectl apply -f {{ calico_url }}
-#   changed_when: true
