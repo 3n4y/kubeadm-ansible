@@ -38,7 +38,7 @@
 #   ansible.builtin.command: yum install -y kubelet kubeadm kubectl --disableexcludes=kubernetes
 #   changed_when: true
 
-- name: Install kubeadm, kubelet and kubectl without packages
+- name: Install kubeadm, kubelet and kubectl without package managers
   ansible.builtin.command:
     cmd: "{{ item }}"
     chdir: "{{ DOWNLOAD_DIR }}"

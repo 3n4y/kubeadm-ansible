@@ -1,20 +1,4 @@
 #!/bin/bash
-#
-# Program: Initial vagrant.
-# History: 2017/1/16 Kyle.b Release
-
-
-# function set_hosts() {
-# cat <<EOF > ~/hosts
-# 127.0.0.1   localhost
-# ::1         localhost
-
-# 192.16.35.10 k8s-n1
-# 192.16.35.11 k8s-n2
-# 192.16.35.12 k8s-m1
-
-# EOF
-# }
 
 function set_hosts() {
 # remove default entry in hosts
@@ -32,8 +16,6 @@ if [[ $HOST_NAME == *kubemaster* ]]; then
       sudo yum install -y git ansible sshpass python-netaddr openssl-devel
     ;;
     "Ubuntu")
-      # sudo sed -i 's/us.archive.ubuntu.com/tw.archive.ubuntu.com/g' /etc/apt/sources.list
-      # sudo apt-add-repository -y ppa:ansible/ansible
       sudo apt-get update && sudo apt-get install -y ansible git sshpass libssl-dev
     ;;
     *)
@@ -41,8 +23,6 @@ if [[ $HOST_NAME == *kubemaster* ]]; then
   esac
 
   set_hosts
-  # sudo ansible-playbook -e network_interface=eth1 site.yaml
 else
   set_hosts
-  # sudo cp ~/hosts /etc/
 fi

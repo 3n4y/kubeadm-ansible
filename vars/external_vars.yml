@@ -9,7 +9,6 @@ pod_subnet: "192.168.0.0/16"
 
 # Which user to configure the kube config file for on the first master node
 user: owner
-minor_version: "1.25"
 k8s_version: "1.21.4"
 calico_version: "3.19"
 calico_cidr: "192.168.0.0/16"

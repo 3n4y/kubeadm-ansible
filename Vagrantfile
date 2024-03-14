@@ -5,7 +5,7 @@ $os_image = (ENV['OS_IMAGE'] || "ubuntu").to_sym
 # Define the number of master and worker nodes
 # If this number is changed, remember to update setup-hosts.sh script with the new hosts IP details in /etc/hosts of each VM.
 NUM_MASTER_NODE = 3
-NUM_WORKER_NODE = 0
+NUM_WORKER_NODE = 1
 NUM_BLANK_SERVER_NODE = 0
 
 IP_NW = "192.168.57."
@@ -26,9 +26,9 @@ end
 # Sets up hosts file,  and ssh authorized keys
 def setup_hosts(node)
   # Set up /etc/hosts
-  node.vm.provision :shell, path: "./hack/setup-vms.sh"
+  node.vm.provision :shell, path: "./setup_vm/setup-vms.sh"
   # Set up ssh connection
-  node.vm.provision :shell, path: "./hack/setup-ssh.sh"
+  node.vm.provision :shell, path: "./setup_vm/setup-ssh.sh"
 end
 
 Vagrant.configure("2") do |config|
@@ -65,9 +65,6 @@ Vagrant.configure("2") do |config|
       node.vm.hostname = "kubemaster-#{$os_image}-#{i}"
       node.vm.network :private_network, ip: IP_NW + "#{MASTER_IP_START + i}", interface: "eth0"
       node.vm.network "forwarded_port", guest: 22, host: "#{2740 + i}"
-      # node.vm.provision "setup-host", type: "shell", :path => "vagrant/setup-hosts.sh"
-      # node.vm.provision "setup-host", type: "shell", :path => "hack/setup-ssh.sh"
-      # Install of dependency packages using script and ssh
       setup_hosts node
     end
   end

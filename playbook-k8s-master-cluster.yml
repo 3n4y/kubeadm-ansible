@@ -48,7 +48,7 @@
 
     - name: Initialize Kubernetes Cluster with kubeadm
       ansible.builtin.command: |
-        kubeadm init --apiserver-advertise-address={{ first_master_node }} --kubernetes-version={{ k8s_version }} \
+        kubeadm init --apiserver-advertise-address={{ ansible_eth1.ipv4.address }} --kubernetes-version={{ k8s_version }} \
         --pod-network-cidr={{ calico_cidr }} --control-plane-endpoint="{{ kube_vip }}:6443" --upload-certs --v=5
       register: kube_init_output
       changed_when: true
@@ -122,12 +122,6 @@
         dest: /tmp/join-command-master.sh
         mode: '755'
 
-#     # - name: Join the other Master nodes to cluster
-#     #   ansible.builtin.command: |
-#     #     sh /tmp/join-command-master.sh
-#     #   register: join_command_master
-#     #   changed_when: true
-
     - name: Get join command from tmp folder
       ansible.builtin.command: |
         cat /tmp/join-command-master.sh
@@ -169,25 +163,25 @@
 
 # Play 4
 # ------------------------
-#- name: Join the Worker nodes to the cluster
-#  hosts: worker_nodes
-#  become: true
-#  tasks:
-#
-#    - name: Copy the join command to the Worker node
-#      ansible.builtin.copy:
-#        src: join-command-worker
-#        dest: /tmp/join-command-worker.sh
-#        mode: '0755'
-#
-#    - name: Join the Worker nodes to cluster
-#      ansible.builtin.command: |
-#        sh /tmp/join-command-worker.sh
-#      register: join_command_worker
-#      changed_when: true
-#
-#    - name: Write command to file
-#      ansible.builtin.copy:
-#        content: "{{ join_command_worker.stdout }}"
-#        dest: /etc/kubernetes/ansible-installed-k8s
-#        mode: "0644"
+- name: Join the Worker nodes to the cluster
+  hosts: worker_nodes
+  become: true
+  tasks:
+
+    - name: Copy the join command to the Worker node
+      ansible.builtin.copy:
+        src: join-command-worker
+        dest: /tmp/join-command-worker.sh
+        mode: '0755'
+
+    - name: Join the Worker nodes to cluster
+      ansible.builtin.command: |
+        sh /tmp/join-command-worker.sh
+      register: join_command_worker
+      changed_when: true
+
+    - name: Write command to file
+      ansible.builtin.copy:
+        content: "{{ join_command_worker.stdout }}"
+        dest: /etc/kubernetes/ansible-installed-k8s
+        mode: "0644"

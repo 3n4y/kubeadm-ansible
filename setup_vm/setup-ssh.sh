@@ -6,10 +6,7 @@ additional_key="ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCzaokV1578cG+21k3dXduPZqkw
 if [[ -e "$authorized_keys_file" ]]; then
     echo "File $authorized_keys_file already exists. Appending text."
     echo "$additional_key" >> "$authorized_keys_file"
-    # echo "Creating file $authorized_keys_file and writing text to it."
-    # echo "$additional_key" > "$authorized_keys_file"
-    # chmod 600 "$authorized_keys_file"  # Set appropriate permissions
-        # Check if the .ssh directory exists, create it if not
+     # Check if the .ssh directory exists, create it if not
 elif [ ! -d "$HOME/.ssh" ]; then
     mkdir -p "$HOME/.ssh"
     chmod 700 "$HOME/.ssh"
