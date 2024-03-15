@@ -1,10 +1,7 @@
 # Kubeadm Ansible Playbook
 
 Build a Kubernetes cluster using Ansible with kubeadm. The goal is easily install a Kubernetes cluster on machines running:
-
-  - Ubuntu 16.04
   - CentOS 7
-  - Debian 9
 
 System requirements:
 
