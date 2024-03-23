@@ -1,6 +1,6 @@
 Vagrant.require_version ">= 1.7.0"
 
-$os_image = (ENV['OS_IMAGE'] || "centos/7").to_sym
+$os_image = (ENV['OS_IMAGE'] || "centos7").to_sym
 
 # Define the number of master and worker nodes
 # If this number is changed, remember to update setup-hosts.sh script with the new hosts IP details in /etc/hosts of each VM.
@@ -28,7 +28,7 @@ def setup_hosts(node)
   # Set up /etc/hosts
   node.vm.provision :shell, path: "./setup_vm/setup-vms.sh"
   # Set up ssh connection
-  # node.vm.provision :shell, path: "./setup_vm/setup-ssh.sh"
+#   node.vm.provision :shell, path: "./setup_vm/setup-ssh.sh"
 end
 
 Vagrant.configure("2") do |config|

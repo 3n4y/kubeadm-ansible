@@ -23,12 +23,12 @@
   tasks:
 
     - name: Pull the image for kube-vip
-      ansible.builtin.command: docker image pull docker.io/plndr/kube-vip:0.3.4
+      ansible.builtin.command: docker image pull docker.io/plndr/{{  kube_vip_version }}
       changed_when: true
 
     - name: Generate the static pod yaml file for kube-vip and place into /etc/kubernetes/manifests
       ansible.builtin.command: |
-        docker run --network host --rm ghcr.io/kube-vip/kube-vip:v0.3.9 manifest pod \
+        docker run --network host --rm ghcr.io/kube-vip/kube-vip:{{ kube_vip_version }} manifest pod \
         --interface eth1 --address {{kube_vip}} \
         --controlplane --arp --leaderElection
       register: static_pod_output
@@ -150,7 +150,7 @@
   # Due to an oddity with kubeadm, join additional Master nodes first, then configure the kube-vip manifest file
     - name: Generate the static pod yaml file for kube-vip and place into /etc/kubernetes/manifests
       ansible.builtin.command: |
-        docker run --network host --rm ghcr.io/kube-vip/kube-vip:v0.3.9 manifest pod \
+        docker run --network host --rm ghcr.io/kube-vip/kube-vip:{{ kube_vip_version }} manifest pod \
         --interface eth1 --address {{kube_vip}} --controlplane --arp --leaderElection
       register: static_pod_output
       changed_when: true

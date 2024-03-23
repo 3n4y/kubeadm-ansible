@@ -1,7 +1,7 @@
 #!/bin/bash
 
 authorized_keys_file="$HOME/.ssh/authorized_keys"
-additional_key="ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCzaokV1578cG+21k3dXduPZqkwcZXNEKJUaldAX6ovaN0IQ0743YqhdNwdcL3gWT2bJ5zBBjSXnCUpTshT107tNqHQnO5Na6rSM/Vh5kdr5mGZx5IP1KUq+fjzuZS+d+kHRU2C1ySZBPayNUuDn51g7VZBrVDx3Z8sjgZTI+uf1OISndSurt6Zk708d/GtkFRXRiUomSzuyEvLvKcD6NyIeUorbxN7qCL0LNa5pqrD8xVxqhCtanY2DrLiQGMy6vBw4IdJliZLEDuYbVxazgjRDYxE8yDG3hiVJbttjq5jHYuzAQBaXa4HCB548OczRxuIjrXECW7y/rd2cVtG+spn endy.obiki@lldevkl-eobiki.office.globalrelay.net"
+additional_key="enter ssh key here and uncomment function in Vagrant file"
 
 if [[ -e "$authorized_keys_file" ]]; then
     echo "File $authorized_keys_file already exists. Appending text."
