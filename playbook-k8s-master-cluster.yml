@@ -1,6 +1,47 @@
 ---
-
 # Play 1
+# ------------------------
+- name: Set up LoadBalancer
+  hosts: load_balancer
+  become: true
+  vars_files:
+    - vars/external_vars.yml
+  tasks:
+
+    - name: Disable SElinux
+      ansible.posix.selinux:
+        state: disabled
+
+    - name: Install Haproxy
+      ansible.builtin.yum:
+        name: haproxy
+        state: present
+
+    - name: Append code to config file
+      ansible.builtin.blockinfile:
+        path: /etc/haproxy/haproxy.cfg
+        block: |
+          frontend kubernetes-frontend
+          bind {{ lb_ip }}:6443
+          mode tcp
+          option tcplog
+          default_backend kubernetes-backend
+
+          backend kubernetes-backend
+          mode tcp
+          option tcp-check
+          balance roundrobin
+          server {{ first_master_node }} {{ first_master_ip }}:6443 check fall 3 rise 2
+          server {{ second_master_node }} {{ second_master_ip }}:6443 check fall 3 rise 2
+          server {{ third_master_node }} {{ third_master_ip }}:6443 check fall 3 rise 2
+
+    - name: Start and enable Haproxy
+      ansible.builtin.systemd:
+        name: haproxy
+        state: restarted
+        enabled: true
+
+# Play 2
 # ------------------------
 - name: Install all prerequisites, the dockerd, and Kubernetes components (kubeadm, kubectl, kubelet)
   hosts: all
@@ -13,7 +54,7 @@
       ansible.builtin.include_tasks: tasks-shared-setup.yaml
 
 
-# Play 2
+# Play 3
 # ------------------------
 - name: Install kube-vip, and initialize a cluster onto the first Master node
   hosts: first_master_node
@@ -22,34 +63,10 @@
     - vars/external_vars.yml
   tasks:
 
-    - name: Pull the image for kube-vip
-      ansible.builtin.command: docker image pull docker.io/plndr/{{  kube_vip_version }}
-      changed_when: true
-
-    - name: Generate the static pod yaml file for kube-vip and place into /etc/kubernetes/manifests
-      ansible.builtin.command: |
-        docker run --network host --rm ghcr.io/kube-vip/kube-vip:{{ kube_vip_version }} manifest pod \
-        --interface eth1 --address {{kube_vip}} \
-        --controlplane --arp --leaderElection
-      register: static_pod_output
-      changed_when: true
-
-    - name: Create kubernertes manifests directory
-      ansible.builtin.file:
-        path: /etc/kubernetes/manifests
-        state: directory
-        mode: "0644"
-
-    - name: Write output to static pod yaml
-      ansible.builtin.copy:
-        content: "{{ static_pod_output.stdout }}"
-        dest: /etc/kubernetes/manifests/vip.yaml
-        mode: "0644"
-
     - name: Initialize Kubernetes Cluster with kubeadm
       ansible.builtin.command: |
         kubeadm init --apiserver-advertise-address={{ ansible_eth1.ipv4.address }} --kubernetes-version={{ k8s_version }} \
-        --pod-network-cidr={{ calico_cidr }} --control-plane-endpoint="{{ kube_vip }}:6443" --upload-certs --v=5
+        --pod-network-cidr={{ calico_cidr }} --control-plane-endpoint="{{ lb_ip }}:6443" --upload-certs --v=5
       register: kube_init_output
       changed_when: true
 
@@ -78,7 +95,7 @@
         dest: /etc/kubernetes/ansible-installed-calico.yaml
         mode: "0644"
 
-  # Source: https://kubernetes.io/docs/reference/setup-tools/kubeadm/kubeadm-join/
+    # Source: https://kubernetes.io/docs/reference/setup-tools/kubeadm/kubeadm-join/
 
     - name: Generate the command to join a node and assign it to a variable
       ansible.builtin.command: kubeadm token create --print-join-command
@@ -107,7 +124,7 @@
       delegate_to: localhost
 
 
-# Play 3
+# Play 4
 # ------------------------
 - name: Join the other Master nodes to the cluster
   hosts: other_master_nodes
@@ -147,21 +164,7 @@
         dest: /etc/kubernetes/ansible-installed-k8s
         mode: "0644"
 
-  # Due to an oddity with kubeadm, join additional Master nodes first, then configure the kube-vip manifest file
-    - name: Generate the static pod yaml file for kube-vip and place into /etc/kubernetes/manifests
-      ansible.builtin.command: |
-        docker run --network host --rm ghcr.io/kube-vip/kube-vip:{{ kube_vip_version }} manifest pod \
-        --interface eth1 --address {{kube_vip}} --controlplane --arp --leaderElection
-      register: static_pod_output
-      changed_when: true
-
-    - name: Write output to static pod yaml
-      ansible.builtin.copy:
-        content: "{{ static_pod_output.stdout }}"
-        dest: /etc/kubernetes/manifests/vip.yaml
-        mode: "0644"
-
-# Play 4
+# Play 5
 # ------------------------
 - name: Join the Worker nodes to the cluster
   hosts: worker_nodes

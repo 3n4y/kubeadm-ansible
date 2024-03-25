@@ -6,16 +6,6 @@
   ansible.posix.selinux:
     state: disabled
 
-# - name: Add Kubernetes YUM repository
-#   ansible.builtin.yum_repository:
-#     name: kubernetes
-#     description: kubernetes
-#     baseurl: https://pkgs.k8s.io/core:/stable:/v1.29/rpm/
-#     gpgkey: https://pkgs.k8s.io/core:/stable:/v1.29/rpm/repodata/repomd.xml.key
-#     gpgcheck: true
-#     enabled: true
-#     exclude: kubelet kubeadm kubectl
-
 - name: Install yum util
   ansible.builtin.yum:
     name: yum
@@ -33,10 +23,6 @@
       - socat
       - conntrack
     state: present
-
-# - name: install kubelet
-#   ansible.builtin.command: yum install -y kubelet kubeadm kubectl --disableexcludes=kubernetes
-#   changed_when: true
 
 - name: Install kubeadm, kubelet and kubectl without package managers
   ansible.builtin.command:

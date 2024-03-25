@@ -6,7 +6,7 @@ $os_image = (ENV['OS_IMAGE'] || "centos7").to_sym
 # If this number is changed, remember to update setup-hosts.sh script with the new hosts IP details in /etc/hosts of each VM.
 NUM_MASTER_NODE = 3
 NUM_WORKER_NODE = 1
-NUM_BLANK_SERVER_NODE = 0
+NUM_BLANK_SERVER_NODE = 1
 
 IP_NW = "192.168.57."
 MASTER_IP_START = 60
@@ -75,7 +75,7 @@ Vagrant.configure("2") do |config|
       node.vm.provider "virtualbox" do |vb, override|
         vb.name = "kubeworker-#{$os_image}-#{i}"
         vb.memory = 2048
-        vb.cpus = 1
+        vb.cpus = 2
         set_vbox(vb, override)
       end
       node.vm.hostname = "kubeworker-#{$os_image}-#{i}"
@@ -89,10 +89,11 @@ Vagrant.configure("2") do |config|
   # provision blank server Nodes
   (1..NUM_BLANK_SERVER_NODE).each do |i|
     config.vm.define "server-#{$os_image}-#{i}" do |node|
-      node.vm.provider "virtualbox" do |vb|
-        vb.name = "server-#{os_image}-#{i}"
-        vb.memory = 2048
+      node.vm.provider "virtualbox" do |vb, override|
+        vb.name = "server-#{$os_image}-#{i}"
+        vb.memory = 512
         vb.cpus = 1
+        set_vbox(vb, override)
       end
       node.vm.hostname = "server-#{$os_image}-#{i}"
       node.vm.network :private_network, ip: IP_NW + "#{SERVER_IP_START + i}"

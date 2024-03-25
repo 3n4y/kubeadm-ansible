@@ -1,14 +1,10 @@
 ---
 
 # Used by the master-cluster playbook
-# Defines the virtual IP to use as the cluster endpoint
-kube_vip: "192.168.57.60"
-first_master_node: "192.168.57.61"
+# Defines the IP to use as the cluster endpoint which is the loadbalancer
+lb_ip: "192.168.57.81"
 # Pod Subnet to use for Calico CNI
 pod_subnet: "192.168.0.0/16"
-
-# Which user to configure the kube config file for on the first master node
-user: owner
 k8s_version: "1.21.4"
 calico_version: "3.19"
 calico_cidr: "192.168.0.0/16"
@@ -24,5 +20,12 @@ DOWNLOAD_DIR: "/usr/bin"
 RELEASE: "v1.21.4"
 RELEASE_VERSION: "v0.16.2"
 docker_version: "18.06.3.ce-3.el7"
-kube_vip_version: "v.0.5.0"
+first_master_node: "kubemaster-centos7-1"
+first_master_ip: "192.168.57.61"
+second_master_node: "kubemaster-centos7-2"
+second_master_ip: "192.168.57.62"
+third_master_node: "kubemaster-centos7-3"
+third_master_ip: "192.168.57.63"
+
+
 
