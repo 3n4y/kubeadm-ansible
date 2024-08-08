@@ -1,0 +1,4 @@
+[submodule "automate-kubeadm-setup-with-vagrant"]
+	path = automate-kubeadm-setup-with-vagrant
+	url = https://github.com/3n4y/automate-kubeadm-setup-with-vagrant.git
+	branch = main
